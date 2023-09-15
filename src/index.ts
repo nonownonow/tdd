@@ -1,3 +1,4 @@
 import App from "./App";
 
-new App(document.getElementById("app"));
+const app = new App();
+document.body.appendChild(app.render());
