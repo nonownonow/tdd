@@ -24,10 +24,10 @@ export default class App {
     return article;
   }
   private bindEvents() {
-    this.input.addEventListener("keydown", (event: KeyboardEvent) => {
+    this.input.addEventListener("keyup", (event: KeyboardEvent) => {
       if (event.key === "Enter") {
         const input = event.currentTarget as HTMLInputElement;
-        const value = input.value.trim();
+        const value = input.value;
         if (value) {
           this.list.addTodo(value);
         }

@@ -25,9 +25,45 @@ describe("랜더링", () => {
           <input
             placeholder="Enter todo"
           />
-          <ul
+          <section
             class="todo-list"
-          />
+          >
+            <ul />
+            <fieldset>
+              <label>
+                All
+                <input
+                  name="filter_type"
+                  type="radio"
+                  value="ALL"
+                />
+              </label>
+              <label>
+                Active
+                <input
+                  name="filter_type"
+                  type="radio"
+                  value="ACTIVE"
+                />
+              </label>
+              <label>
+                Complete
+                <input
+                  name="filter_type"
+                  type="radio"
+                  value="COMPLETED"
+                />
+              </label>
+            </fieldset>
+            <span>
+              0 items left
+            </span>
+            <button
+              class="clear-completed"
+            >
+              Clear Completed (0)
+            </button>
+          </section>
         </article>
       </div>
     `);
@@ -42,15 +78,10 @@ describe("랜더링", () => {
     });
     test("input을 통해 Todo를 입력할 수 있으며, enter키로 Todo를 등록할 수 있습니다.등록과 동시에 input의 내용은 초기화되어야 합니다.", () => {
       fireEvent.input(input, { target: { value: "New Todo" } });
-      fireEvent.keyDown(input, { key: "Enter", code: "Enter" });
+      fireEvent.keyUp(input, { key: "Enter", code: "Enter" });
       const todoList = container.querySelector(".todo-list");
       expect(todoList).toHaveTextContent("New Todo");
       expect(input.value).toBe("");
     });
-  });
-
-  test("should render ToDoList", () => {
-    const list = container.querySelector(".todo-list");
-    expect(list).toBeInTheDocument();
   });
 });
