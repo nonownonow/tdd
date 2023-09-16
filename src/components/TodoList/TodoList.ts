@@ -12,6 +12,9 @@ export default class TodoList {
   rootElement: HTMLElement;
   todos: Todo[];
   currentFilter: FilterType;
+  offsetX: number = 0;
+  private draggedItemIndex: number | null = null;
+  private mirror: HTMLElement | null = null;
   constructor() {
     this.rootElement = document.createElement("section");
     this.rootElement.classList.add("todo-list");
@@ -138,19 +141,110 @@ export default class TodoList {
     });
     return clearButton;
   }
-  render() {
+  private findTodoIdFromElement(element: HTMLElement): string {
+    const checkbox = element.querySelector('input[type="checkbox"]');
+    return checkbox ? checkbox.id : "";
+  }
+  private handleMousedown = (event: MouseEvent) => {
+    console.log("mouseDown");
+    const target = event.target as HTMLElement;
+    const todoElement = target.closest(".todo-item") as HTMLElement;
+    if (!todoElement) return;
+
+    const todoId = this.findTodoIdFromElement(todoElement);
+    this.draggedItemIndex = this.todos.findIndex((todo) => todo.id === todoId);
+    if (this.draggedItemIndex === -1) return;
+
+    this.mirror = todoElement.cloneNode(true) as HTMLElement;
+    this.mirror.style.position = "absolute";
+    this.mirror.style.opacity = "0.5";
+    this.mirror.style.pointerEvents = "none";
+    this.mirror.style.width = "100%";
+    const rect = todoElement.getBoundingClientRect();
+
+    this.offsetX = event.clientX - rect.left;
+    const offsetY = event.clientY - rect.top;
+
+    this.mirror.style.position = "fixed";
+    this.mirror.style.top = `${event.clientY - offsetY}px`;
+    this.mirror.style.left = `${event.clientX - this.offsetX}px`;
+    this.mirror.style.width = `${rect.width}px`;
+    this.rootElement.appendChild(this.mirror);
+  };
+  private findTargetTodoElement(event: MouseEvent): HTMLElement | null {
+    const filteredIds = this.todos.map((todo) => todo.id);
+
+    const hoveredElement = document.elementFromPoint(
+      event.clientX,
+      event.clientY
+    ) as HTMLElement;
+    const closestTodo = hoveredElement.closest(".todo-item") as HTMLElement;
+
+    if (
+      closestTodo &&
+      filteredIds.includes(this.findTodoIdFromElement(closestTodo))
+    ) {
+      return closestTodo;
+    }
+
+    return null;
+  }
+  private swapInFilteredTodos(index1: number, index2: number) {
+    // 두 아이템의 위치를 바꿉니다.
+    [this.todos[index1], this.todos[index2]] = [
+      this.todos[index2],
+      this.todos[index1],
+    ];
+  }
+
+  private handleMousemove = (event: MouseEvent) => {
+    if (this.draggedItemIndex === null || !this.mirror) return;
+
+    const rect = this.mirror.getBoundingClientRect();
+    this.mirror.style.top = `${event.clientY - rect.height / 2}px`;
+    this.mirror.style.left = `${event.clientX - this.offsetX}px`;
+  };
+
+  private handleMouseup = (event: MouseEvent) => {
+    if (this.draggedItemIndex === null || !this.mirror) return;
+
+    this.mirror.remove();
+    this.mirror = null;
+
+    this.draggedItemIndex = null;
+
+    this.render();
+  };
+
+  private handleKeyup = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      if (this.draggedItemIndex !== null && this.mirror) {
+        this.mirror.remove();
+        this.mirror = null;
+        this.draggedItemIndex = null;
+      }
+    }
+  };
+  private getFilteredTodos = () => {
     const sortedTodos = [...this.todos].sort((a, b) => {
       if (a.completed === b.completed) {
         return b.createdAt - a.createdAt;
       }
       return a.completed ? 1 : -1;
     });
-    const filteredTodos = this.filterTodo(sortedTodos);
+    return this.filterTodo(sortedTodos);
+  };
+  render() {
+    const filteredTodos = this.getFilteredTodos();
     this.rootElement.innerHTML = "";
     this.rootElement.appendChild(this.createItemList(filteredTodos));
     this.rootElement.appendChild(this.createCountDisplay(filteredTodos.length));
     this.rootElement.appendChild(this.createFilterRadioFieldset());
     this.rootElement.appendChild(this.createClearCompletedButton());
+    this.rootElement.addEventListener("mousedown", this.handleMousedown);
+    document.addEventListener("mousemove", this.handleMousemove);
+    document.addEventListener("mouseup", this.handleMouseup);
+    document.addEventListener("keyup", this.handleKeyup);
     return this.rootElement;
   }
 }
