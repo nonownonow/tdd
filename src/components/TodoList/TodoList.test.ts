@@ -56,10 +56,13 @@ describe("TodoList", () => {
                 <button
                   class="delete-btn"
                 >
-                  Delete
+                  삭제
                 </button>
               </li>
             </ul>
+            <span>
+              1 items left
+            </span>
             <fieldset>
               <label>
                 All
@@ -86,9 +89,6 @@ describe("TodoList", () => {
                 />
               </label>
             </fieldset>
-            <span>
-              1 items left
-            </span>
             <button
               class="clear-completed"
             >

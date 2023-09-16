@@ -1,4 +1,5 @@
 import TodoList from "./components/TodoList/TodoList";
+import "./App.css";
 
 export default class App {
   rootElement: HTMLElement;
@@ -14,7 +15,8 @@ export default class App {
     const h1 = document.createElement("h1");
     h1.textContent = "Todo App";
     this.input = document.createElement("input");
-    this.input.placeholder = "Enter todo";
+    this.input.type = "text";
+    this.input.placeholder = "What needs to be done?";
     this.list = new TodoList();
     this.list.render().className = "todo-list";
     article.appendChild(h1);

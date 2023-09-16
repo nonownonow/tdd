@@ -23,12 +23,16 @@ describe("랜더링", () => {
             Todo App
           </h1>
           <input
-            placeholder="Enter todo"
+            placeholder="What needs to be done?"
+            type="text"
           />
           <section
             class="todo-list"
           >
             <ul />
+            <span>
+              0 items left
+            </span>
             <fieldset>
               <label>
                 All
@@ -55,9 +59,6 @@ describe("랜더링", () => {
                 />
               </label>
             </fieldset>
-            <span>
-              0 items left
-            </span>
             <button
               class="clear-completed"
             >
@@ -71,7 +72,7 @@ describe("랜더링", () => {
   describe("입력부", () => {
     let input: HTMLInputElement;
     beforeEach(() => {
-      input = getByPlaceholderText(container, "Enter todo");
+      input = getByPlaceholderText(container, "What needs to be done?");
     });
     test("Todo를 입력받을 수 있는 input이 존재합니다.", () => {
       expect(input).toBeInTheDocument();

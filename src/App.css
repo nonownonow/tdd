@@ -1,0 +1,105 @@
+.todo-app {
+  margin: 30px;
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.todo-app h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  border: 1px solid #d1d1d1;
+  border-radius: 3px;
+}
+
+.todo-list {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 20px;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.todo-item.completed label {
+  text-decoration: line-through;
+}
+
+.delete-btn {
+  background-color: red;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+label {
+  display: inline-block;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.clear-completed {
+  background-color: #e0e0e0;
+  color: #333;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+span {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+label:has(input[name="filter_type"]) {
+  border: 1px solid black;
+  padding: 5px;
+  border-radius: 2px;
+  min-width: 40px;
+  display: inline-block;
+  text-align: center;
+}
+label:has(input:checked) {
+  color: red;
+}
+
+fieldset {
+  display: inline-block;
+}
+.todo-list > span {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.todo-item {
+  border-bottom: 1px solid gray;
+  padding: 10px;
+}

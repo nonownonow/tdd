@@ -58,7 +58,7 @@ export default class TodoList {
     label.textContent = todo.content;
     label.htmlFor = todo.id;
     deleteButton.className = "delete-btn";
-    deleteButton.textContent = "Delete";
+    deleteButton.textContent = "삭제";
     deleteButton.addEventListener(
       "click",
       this.handleTodoDelete.bind(this, todo.id)
@@ -148,8 +148,8 @@ export default class TodoList {
     const filteredTodos = this.filterTodo(sortedTodos);
     this.rootElement.innerHTML = "";
     this.rootElement.appendChild(this.createItemList(filteredTodos));
-    this.rootElement.appendChild(this.createFilterRadioFieldset());
     this.rootElement.appendChild(this.createCountDisplay(filteredTodos.length));
+    this.rootElement.appendChild(this.createFilterRadioFieldset());
     this.rootElement.appendChild(this.createClearCompletedButton());
     return this.rootElement;
   }
