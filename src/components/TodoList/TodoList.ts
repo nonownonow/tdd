@@ -171,31 +171,6 @@ export default class TodoList {
     this.mirror.style.width = `${rect.width}px`;
     this.rootElement.appendChild(this.mirror);
   };
-  private findTargetTodoElement(event: MouseEvent): HTMLElement | null {
-    const filteredIds = this.todos.map((todo) => todo.id);
-
-    const hoveredElement = document.elementFromPoint(
-      event.clientX,
-      event.clientY
-    ) as HTMLElement;
-    const closestTodo = hoveredElement.closest(".todo-item") as HTMLElement;
-
-    if (
-      closestTodo &&
-      filteredIds.includes(this.findTodoIdFromElement(closestTodo))
-    ) {
-      return closestTodo;
-    }
-
-    return null;
-  }
-  private swapInFilteredTodos(index1: number, index2: number) {
-    // 두 아이템의 위치를 바꿉니다.
-    [this.todos[index1], this.todos[index2]] = [
-      this.todos[index2],
-      this.todos[index1],
-    ];
-  }
 
   private handleMousemove = (event: MouseEvent) => {
     if (this.draggedItemIndex === null || !this.mirror) return;
@@ -205,7 +180,7 @@ export default class TodoList {
     this.mirror.style.left = `${event.clientX - this.offsetX}px`;
   };
 
-  private handleMouseup = (event: MouseEvent) => {
+  private handleMouseup = () => {
     if (this.draggedItemIndex === null || !this.mirror) return;
 
     this.mirror.remove();
@@ -242,9 +217,9 @@ export default class TodoList {
     this.rootElement.appendChild(this.createFilterRadioFieldset());
     this.rootElement.appendChild(this.createClearCompletedButton());
     this.rootElement.addEventListener("mousedown", this.handleMousedown);
-    document.addEventListener("mousemove", this.handleMousemove);
-    document.addEventListener("mouseup", this.handleMouseup);
-    document.addEventListener("keyup", this.handleKeyup);
+    // document.addEventListener("mousemove", this.handleMousemove);
+    // document.addEventListener("mouseup", this.handleMouseup);
+    // document.addEventListener("keyup", this.handleKeyup);
     return this.rootElement;
   }
 }
