@@ -9,10 +9,11 @@ interface Todo {
 
 type FilterType = "ALL" | "ACTIVE" | "COMPLETED";
 export default class TodoList {
-  rootElement: HTMLElement;
-  todos: Todo[];
-  currentFilter: FilterType;
-  offsetX: number = 0;
+  private rootElement: HTMLElement;
+  private todos: Todo[];
+  private filteredTodos: Todo[];
+  private currentFilter: FilterType;
+  private offsetX: number = 0;
   private draggedItemIndex: number | null = null;
   private mirror: HTMLElement | null = null;
   constructor() {
@@ -116,17 +117,17 @@ export default class TodoList {
     });
     return fieldset;
   }
-  private createItemList(todos: Todo[]) {
+  private createItemList() {
     const itemList = document.createElement("ul");
 
-    todos.forEach((todo) => {
+    this.filteredTodos.forEach((todo) => {
       itemList.appendChild(this.createTodoItem(todo));
     });
     return itemList;
   }
-  private createCountDisplay(todoCount: number) {
+  private createCountDisplay() {
     const countDisplay = document.createElement("span");
-    countDisplay.textContent = `${todoCount} items left`;
+    countDisplay.textContent = `${this.filteredTodos.length} items left`;
     return countDisplay;
   }
   private createClearCompletedButton() {
@@ -152,9 +153,13 @@ export default class TodoList {
     if (!todoElement) return;
 
     const todoId = this.findTodoIdFromElement(todoElement);
-    this.draggedItemIndex = this.todos.findIndex((todo) => todo.id === todoId);
+    this.draggedItemIndex = this.filteredTodos.findIndex(
+      (todo) => todo.id === todoId
+    );
+
     if (this.draggedItemIndex === -1) return;
 
+    if (this.filteredTodos[this.draggedItemIndex].completed) return;
     this.mirror = todoElement.cloneNode(true) as HTMLElement;
     this.mirror.style.position = "absolute";
     this.mirror.style.opacity = "0.5";
@@ -188,7 +193,7 @@ export default class TodoList {
 
     this.draggedItemIndex = null;
 
-    this.render();
+    // this.render();
   };
 
   private handleKeyup = (event: KeyboardEvent) => {
@@ -210,16 +215,16 @@ export default class TodoList {
     return this.filterTodo(sortedTodos);
   };
   render() {
-    const filteredTodos = this.getFilteredTodos();
+    this.filteredTodos = this.getFilteredTodos();
     this.rootElement.innerHTML = "";
-    this.rootElement.appendChild(this.createItemList(filteredTodos));
-    this.rootElement.appendChild(this.createCountDisplay(filteredTodos.length));
+    this.rootElement.appendChild(this.createItemList());
+    this.rootElement.appendChild(this.createCountDisplay());
     this.rootElement.appendChild(this.createFilterRadioFieldset());
     this.rootElement.appendChild(this.createClearCompletedButton());
     this.rootElement.addEventListener("mousedown", this.handleMousedown);
-    // document.addEventListener("mousemove", this.handleMousemove);
-    // document.addEventListener("mouseup", this.handleMouseup);
-    // document.addEventListener("keyup", this.handleKeyup);
+    document.addEventListener("mousemove", this.handleMousemove);
+    document.addEventListener("mouseup", this.handleMouseup);
+    document.addEventListener("keyup", this.handleKeyup);
     return this.rootElement;
   }
 }
