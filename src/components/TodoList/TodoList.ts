@@ -5,6 +5,7 @@ interface Todo {
   content: string;
   createdAt: number;
   completed: boolean;
+  order: number;
 }
 
 type FilterType = "ALL" | "ACTIVE" | "COMPLETED";
@@ -14,7 +15,7 @@ export default class TodoList {
   private filteredTodos: Todo[];
   private currentFilter: FilterType;
   private offsetX: number = 0;
-  private draggedItemIndex: number | null = null;
+  private draggedItemIndex: number;
   private mirror: HTMLElement | null = null;
   constructor() {
     this.rootElement = document.createElement("section");
@@ -23,11 +24,16 @@ export default class TodoList {
     this.currentFilter = "ALL";
   }
   addTodo(todo: string) {
+    const maxOrder =
+      this.todos.length === 0
+        ? 0
+        : Math.max(...this.todos.map((todo) => todo.order));
     this.todos.unshift({
       id: generateUUID(),
       createdAt: Date.now(),
       content: todo,
       completed: false,
+      order: maxOrder + 1,
     });
     this.render();
   }
@@ -184,31 +190,78 @@ export default class TodoList {
     this.mirror.style.top = `${event.clientY - rect.height / 2}px`;
     this.mirror.style.left = `${event.clientX - this.offsetX}px`;
   };
-
-  private handleMouseup = () => {
+  private cancelDrag() {
+    if (this.mirror) {
+      this.mirror.remove();
+      this.mirror = null;
+    }
+    this.draggedItemIndex = null;
+  }
+  private handleMouseup = (event: MouseEvent) => {
     if (this.draggedItemIndex === null || !this.mirror) return;
 
-    this.mirror.remove();
-    this.mirror = null;
+    const rootRect = this.rootElement.getBoundingClientRect();
+    if (
+      event.clientX < rootRect.left ||
+      event.clientX > rootRect.right ||
+      event.clientY < rootRect.top ||
+      event.clientY > rootRect.bottom
+    ) {
+      this.cancelDrag();
+      return;
+    }
 
-    this.draggedItemIndex = null;
+    const dropTarget = document.elementFromPoint(
+      event.clientX,
+      event.clientY
+    ) as HTMLElement;
+    const dropTodoElement = dropTarget.closest(".todo-item") as HTMLElement;
+    if (!dropTodoElement) {
+      this.cancelDrag();
+      return;
+    }
 
-    // this.render();
+    const dropTodoId = this.findTodoIdFromElement(dropTodoElement);
+    const dropItemIndex = this.filteredTodos.findIndex(
+      (todo) => todo.id === dropTodoId
+    );
+
+    if (dropItemIndex !== -1 && dropItemIndex !== this.draggedItemIndex) {
+      const draggedItem = this.filteredTodos[this.draggedItemIndex];
+      this.filteredTodos.splice(this.draggedItemIndex, 1);
+      this.filteredTodos.splice(dropItemIndex, 0, draggedItem);
+      for (let i = 0; i < this.filteredTodos.length; i++) {
+        this.filteredTodos[i].order = i;
+      }
+      this.syncWithMainTodos();
+    }
+    this.cancelDrag();
+
+    this.render();
   };
+  private syncWithMainTodos() {
+    // this.todos 배열이 this.filteredTodos 배열의 순서와 동기화되도록 합니다.
+    this.todos.sort((a, b) => {
+      const indexA = this.filteredTodos.findIndex((todo) => todo.id === a.id);
+      const indexB = this.filteredTodos.findIndex((todo) => todo.id === b.id);
+      return indexA - indexB;
+    });
+  }
 
   private handleKeyup = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
       if (this.draggedItemIndex !== null && this.mirror) {
-        this.mirror.remove();
-        this.mirror = null;
-        this.draggedItemIndex = null;
+        this.cancelDrag();
       }
     }
   };
   private getFilteredTodos = () => {
     const sortedTodos = [...this.todos].sort((a, b) => {
       if (a.completed === b.completed) {
-        return b.createdAt - a.createdAt;
+        if (a.order === b.order) {
+          return b.createdAt - a.createdAt;
+        }
+        return b.order - a.order;
       }
       return a.completed ? 1 : -1;
     });
@@ -222,9 +275,12 @@ export default class TodoList {
     this.rootElement.appendChild(this.createFilterRadioFieldset());
     this.rootElement.appendChild(this.createClearCompletedButton());
     this.rootElement.addEventListener("mousedown", this.handleMousedown);
-    document.addEventListener("mousemove", this.handleMousemove);
-    document.addEventListener("mouseup", this.handleMouseup);
-    document.addEventListener("keyup", this.handleKeyup);
+    // document.addEventListener("mousemove", this.handleMousemove);
+    // document.addEventListener("keyup", this.handleKeyup);
+    // document.addEventListener("mouseup", this.handleMouseup);
+    /*
+    ;
+    */
     return this.rootElement;
   }
 }
