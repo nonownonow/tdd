@@ -16,8 +16,9 @@ export default class TodoList {
   private offsetX: number = 0;
   private clickItemIndex: number;
   private mirror: HTMLElement;
-  private initialMousePosition = { x: 0, y: 0 };
-  private isDragging = false;
+  private previewTimeout: number;
+  private isPreviewShown: boolean;
+  private previewElement: HTMLElement;
   constructor() {
     this.rootElement = document.createElement("section");
     this.rootElement.classList.add("todo-list");
@@ -30,7 +31,7 @@ export default class TodoList {
         ? 0
         : Math.max(...this.todos.map((todo) => todo.order));
     this.todos.unshift({
-      id: generateUUID(),
+      id: "id" + generateUUID(),
       content: todo,
       completed: false,
       order: maxOrder + 1,
@@ -164,7 +165,6 @@ export default class TodoList {
       const todoElement = target.closest(".todo-item") as HTMLElement;
       this.createDragMirror(event, todoElement);
     }
-    this.initialMousePosition = { x: event.x, y: event.y };
   };
 
   private createDragMirror = (event: MouseEvent, todoElement: HTMLElement) => {
@@ -190,6 +190,38 @@ export default class TodoList {
   private handleMousemove = (event: MouseEvent) => {
     if (this.clickItemIndex === null || !this.mirror) return;
     this.moveMirror(event);
+    clearTimeout(this.previewTimeout);
+    this.previewTimeout = setTimeout(() => {
+      // this.showPreview(event);
+    }, 2000) as unknown as number;
+  };
+  private showPreview = (event: MouseEvent) => {
+    // 현재 드래그 중인 아이템의 엘리먼트를 찾습니다.
+    const currentItemElement = this.rootElement.querySelector(
+      `li:has(input[id="${this.todos[this.clickItemIndex]?.id}"])`
+    ) as HTMLLabelElement;
+
+    if (currentItemElement) {
+      // 현재 아이템의 복제본을 생성합니다.
+      this.previewElement = currentItemElement.cloneNode(true) as HTMLElement;
+
+      // 복제본에 스타일을 적용합니다.
+      this.previewElement.style.opacity = "0.7";
+      this.previewElement.style.position = "relative";
+      this.previewElement.style.color = "red";
+
+      // 원래 아이템을 삭제합니다.
+      // currentItemElement.remove();
+
+      // 드롭 대상을 찾습니다.
+      const dropTarget = document.elementFromPoint(
+        event.clientX,
+        event.clientY
+      ) as HTMLElement;
+      const dropTodoElement = dropTarget.closest(".todo-item") as HTMLElement;
+
+      dropTodoElement.insertAdjacentElement("beforebegin", this.previewElement);
+    }
   };
   private moveMirror(event: MouseEvent) {
     const rect = this.mirror.getBoundingClientRect();
@@ -232,10 +264,8 @@ export default class TodoList {
     );
 
     if (dropItemIndex !== -1 && dropItemIndex !== this.clickItemIndex) {
-      const draggedItem = this.filteredTodos[dropItemIndex];
-      const clickItem = this.filteredTodos[this.clickItemIndex];
-      this.filteredTodos[dropItemIndex] = clickItem;
-      this.filteredTodos[this.clickItemIndex] = draggedItem;
+      const draggedItem = this.filteredTodos.splice(this.clickItemIndex, 1)[0];
+      this.filteredTodos.splice(dropItemIndex, 0, draggedItem);
       for (let i = 0; i < this.filteredTodos.length; i++) {
         this.filteredTodos[i].order = this.filteredTodos.length - 1 - i;
       }

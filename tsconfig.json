@@ -1,6 +1,7 @@
 {
-  "types": ["node", "jest", "@testing-library/jest-dom"],
+  "types": ["jest", "@testing-library/jest-dom"],
   "compilerOptions": {
+    "lib": ["dom", "es6"],
     "outDir": "./dist/",
     "noImplicitAny": true,
     "module": "es6",

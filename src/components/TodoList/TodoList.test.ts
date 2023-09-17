@@ -44,12 +44,12 @@ describe("TodoList", () => {
                 class="todo-item"
               >
                 <label
-                  for="mocked-uuid-0"
+                  for="idmocked-uuid-0"
                 >
                   Task 1
                 </label>
                 <input
-                  id="mocked-uuid-0"
+                  id="idmocked-uuid-0"
                   type="checkbox"
                 />
                 <button
