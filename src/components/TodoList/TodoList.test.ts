@@ -42,7 +42,6 @@ describe("TodoList", () => {
             <ul>
               <li
                 class="todo-item"
-                data-created-at="0"
               >
                 <label
                   for="mocked-uuid-0"

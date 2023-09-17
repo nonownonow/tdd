@@ -3,7 +3,6 @@ import { generateUUID } from "../../util";
 interface Todo {
   id: string;
   content: string;
-  createdAt: number;
   completed: boolean;
   order: number;
 }
@@ -15,8 +14,10 @@ export default class TodoList {
   private filteredTodos: Todo[];
   private currentFilter: FilterType;
   private offsetX: number = 0;
-  private draggedItemIndex: number;
-  private mirror: HTMLElement | null = null;
+  private clickItemIndex: number;
+  private mirror: HTMLElement;
+  private initialMousePosition = { x: 0, y: 0 };
+  private isDragging = false;
   constructor() {
     this.rootElement = document.createElement("section");
     this.rootElement.classList.add("todo-list");
@@ -30,7 +31,6 @@ export default class TodoList {
         : Math.max(...this.todos.map((todo) => todo.order));
     this.todos.unshift({
       id: generateUUID(),
-      createdAt: Date.now(),
       content: todo,
       completed: false,
       order: maxOrder + 1,
@@ -54,7 +54,6 @@ export default class TodoList {
     const deleteButton = document.createElement("button");
 
     todoItem.className = "todo-item";
-    todoItem.dataset.createdAt = String(todo.createdAt);
     if (todo.completed) {
       todoItem.classList.add("completed");
       checkbox.checked = true;
@@ -153,19 +152,25 @@ export default class TodoList {
     return checkbox ? checkbox.id : "";
   }
   private handleMousedown = (event: MouseEvent) => {
-    console.log("mouseDown");
     const target = event.target as HTMLElement;
     const todoElement = target.closest(".todo-item") as HTMLElement;
     if (!todoElement) return;
-
     const todoId = this.findTodoIdFromElement(todoElement);
-    this.draggedItemIndex = this.filteredTodos.findIndex(
+    this.clickItemIndex = this.filteredTodos.findIndex(
       (todo) => todo.id === todoId
     );
+    if (this.clickItemIndex > -1) {
+      const target = event.target as HTMLElement;
+      const todoElement = target.closest(".todo-item") as HTMLElement;
+      this.createDragMirror(event, todoElement);
+    }
+    this.initialMousePosition = { x: event.x, y: event.y };
+  };
 
-    if (this.draggedItemIndex === -1) return;
+  private createDragMirror = (event: MouseEvent, todoElement: HTMLElement) => {
+    if (this.clickItemIndex === -1) return;
 
-    if (this.filteredTodos[this.draggedItemIndex].completed) return;
+    if (this.filteredTodos[this.clickItemIndex].completed) return;
     this.mirror = todoElement.cloneNode(true) as HTMLElement;
     this.mirror.style.position = "absolute";
     this.mirror.style.opacity = "0.5";
@@ -182,23 +187,23 @@ export default class TodoList {
     this.mirror.style.width = `${rect.width}px`;
     this.rootElement.appendChild(this.mirror);
   };
-
   private handleMousemove = (event: MouseEvent) => {
-    if (this.draggedItemIndex === null || !this.mirror) return;
-
+    if (this.clickItemIndex === null || !this.mirror) return;
+    this.moveMirror(event);
+  };
+  private moveMirror(event: MouseEvent) {
     const rect = this.mirror.getBoundingClientRect();
     this.mirror.style.top = `${event.clientY - rect.height / 2}px`;
     this.mirror.style.left = `${event.clientX - this.offsetX}px`;
-  };
+  }
   private cancelDrag() {
     if (this.mirror) {
       this.mirror.remove();
       this.mirror = null;
     }
-    this.draggedItemIndex = null;
   }
   private handleMouseup = (event: MouseEvent) => {
-    if (this.draggedItemIndex === null || !this.mirror) return;
+    if (this.clickItemIndex === null || !this.mirror) return;
 
     const rootRect = this.rootElement.getBoundingClientRect();
     if (
@@ -226,21 +231,21 @@ export default class TodoList {
       (todo) => todo.id === dropTodoId
     );
 
-    if (dropItemIndex !== -1 && dropItemIndex !== this.draggedItemIndex) {
-      const draggedItem = this.filteredTodos[this.draggedItemIndex];
-      this.filteredTodos.splice(this.draggedItemIndex, 1);
-      this.filteredTodos.splice(dropItemIndex, 0, draggedItem);
+    if (dropItemIndex !== -1 && dropItemIndex !== this.clickItemIndex) {
+      const draggedItem = this.filteredTodos[dropItemIndex];
+      const clickItem = this.filteredTodos[this.clickItemIndex];
+      this.filteredTodos[dropItemIndex] = clickItem;
+      this.filteredTodos[this.clickItemIndex] = draggedItem;
       for (let i = 0; i < this.filteredTodos.length; i++) {
-        this.filteredTodos[i].order = i;
+        this.filteredTodos[i].order = this.filteredTodos.length - 1 - i;
       }
-      this.syncWithMainTodos();
+      // this.syncWithMainTodos();
+      this.render();
     }
     this.cancelDrag();
-
-    this.render();
+    this.clickItemIndex = null;
   };
   private syncWithMainTodos() {
-    // this.todos 배열이 this.filteredTodos 배열의 순서와 동기화되도록 합니다.
     this.todos.sort((a, b) => {
       const indexA = this.filteredTodos.findIndex((todo) => todo.id === a.id);
       const indexB = this.filteredTodos.findIndex((todo) => todo.id === b.id);
@@ -250,7 +255,7 @@ export default class TodoList {
 
   private handleKeyup = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
-      if (this.draggedItemIndex !== null && this.mirror) {
+      if (this.clickItemIndex !== null && this.mirror) {
         this.cancelDrag();
       }
     }
@@ -258,9 +263,6 @@ export default class TodoList {
   private getFilteredTodos = () => {
     const sortedTodos = [...this.todos].sort((a, b) => {
       if (a.completed === b.completed) {
-        if (a.order === b.order) {
-          return b.createdAt - a.createdAt;
-        }
         return b.order - a.order;
       }
       return a.completed ? 1 : -1;
@@ -275,9 +277,9 @@ export default class TodoList {
     this.rootElement.appendChild(this.createFilterRadioFieldset());
     this.rootElement.appendChild(this.createClearCompletedButton());
     this.rootElement.addEventListener("mousedown", this.handleMousedown);
-    // document.addEventListener("mousemove", this.handleMousemove);
-    // document.addEventListener("keyup", this.handleKeyup);
-    // document.addEventListener("mouseup", this.handleMouseup);
+    document.addEventListener("mousemove", this.handleMousemove);
+    document.addEventListener("keyup", this.handleKeyup);
+    document.addEventListener("mouseup", this.handleMouseup);
     /*
     ;
     */
