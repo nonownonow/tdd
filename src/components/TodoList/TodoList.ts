@@ -23,6 +23,26 @@ export default class TodoList {
     this.rootElement = document.createElement("section");
     this.rootElement.classList.add("todo-list");
     this.todos = [];
+    /*this.todos = [
+      {
+        id: "id29a58ad6-f893-4a8e-9892-b70e792aefe8",
+        content: "asdfasdsfasdf",
+        completed: false,
+        order: 3,
+      },
+      {
+        id: "id82daba94-f6cc-491a-a5a7-6f1c555dc638",
+        content: "sddd",
+        completed: false,
+        order: 2,
+      },
+      {
+        id: "id3d30ba52-1c9c-4ad4-8289-c6443852288d",
+        content: "asdfasdfa",
+        completed: false,
+        order: 1,
+      },
+    ];*/
     this.currentFilter = "ALL";
   }
   addTodo(todo: string) {
@@ -125,7 +145,7 @@ export default class TodoList {
   }
   private createItemList() {
     const itemList = document.createElement("ul");
-
+    itemList.className = "todo-item-list";
     this.filteredTodos.forEach((todo) => {
       itemList.appendChild(this.createTodoItem(todo));
     });
@@ -303,6 +323,7 @@ export default class TodoList {
     const input = document.createElement("input");
     input.type = "text";
     input.placeholder = "What needs to be done?";
+    input.className = "todo-item-input";
     input.addEventListener("keyup", (event: KeyboardEvent) => {
       if (event.key === "Enter") {
         const input = event.currentTarget as HTMLInputElement;
@@ -320,10 +341,16 @@ export default class TodoList {
     this.filteredTodos = this.getFilteredTodos();
     this.rootElement.innerHTML = "";
     this.rootElement.appendChild(this.createInput());
+    const inputElement: HTMLInputElement = this.rootElement.querySelector(
+      "input.todo-item-input"
+    );
+    inputElement.focus();
     this.rootElement.appendChild(this.createItemList());
-    this.rootElement.appendChild(this.createCountDisplay());
-    this.rootElement.appendChild(this.createFilterRadioFieldset());
-    this.rootElement.appendChild(this.createClearCompletedButton());
+    const todoInfo = document.createElement("div");
+    todoInfo.appendChild(this.createCountDisplay());
+    todoInfo.appendChild(this.createFilterRadioFieldset());
+    todoInfo.appendChild(this.createClearCompletedButton());
+    this.rootElement.appendChild(todoInfo);
     this.rootElement.addEventListener("mousedown", this.handleMousedown);
     document.addEventListener("mousemove", this.handleMousemove);
     document.addEventListener("keyup", this.handleKeyup);

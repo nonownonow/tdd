@@ -39,7 +39,14 @@ describe("TodoList", () => {
           <section
             class="todo-list"
           >
-            <ul>
+            <input
+              class="todo-item-input"
+              placeholder="What needs to be done?"
+              type="text"
+            />
+            <ul
+              class="todo-item-list"
+            >
               <li
                 class="todo-item"
               >
@@ -59,40 +66,42 @@ describe("TodoList", () => {
                 </button>
               </li>
             </ul>
-            <span>
-              1 items left
-            </span>
-            <fieldset>
-              <label>
-                All
-                <input
-                  name="filter_type"
-                  type="radio"
-                  value="ALL"
-                />
-              </label>
-              <label>
-                Active
-                <input
-                  name="filter_type"
-                  type="radio"
-                  value="ACTIVE"
-                />
-              </label>
-              <label>
-                Complete
-                <input
-                  name="filter_type"
-                  type="radio"
-                  value="COMPLETED"
-                />
-              </label>
-            </fieldset>
-            <button
-              class="clear-completed"
-            >
-              Clear Completed (0)
-            </button>
+            <div>
+              <span>
+                1 items left
+              </span>
+              <fieldset>
+                <label>
+                  All
+                  <input
+                    name="filter_type"
+                    type="radio"
+                    value="ALL"
+                  />
+                </label>
+                <label>
+                  Active
+                  <input
+                    name="filter_type"
+                    type="radio"
+                    value="ACTIVE"
+                  />
+                </label>
+                <label>
+                  Complete
+                  <input
+                    name="filter_type"
+                    type="radio"
+                    value="COMPLETED"
+                  />
+                </label>
+              </fieldset>
+              <button
+                class="clear-completed"
+              >
+                Clear Completed (0)
+              </button>
+            </div>
           </section>
         </div>
       `);
@@ -117,7 +126,7 @@ describe("TodoList", () => {
     test("등록된 Todo 아이템은 Todo 목록 상단에 추가됩니다.", () => {
       todoList.addTodo("Task 1");
       todoList.addTodo("Task 2");
-      const list = container.querySelector(".todo-list");
+      const list = container.querySelector(".todo-item-list");
       const firstTodo = list?.firstElementChild;
       const label = firstTodo.querySelector("label");
       expect(label).toHaveTextContent("Task 2");

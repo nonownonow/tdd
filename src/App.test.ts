@@ -22,48 +22,53 @@ describe("랜더링", () => {
           <h1>
             Todo App
           </h1>
-          <input
-            placeholder="What needs to be done?"
-            type="text"
-          />
           <section
             class="todo-list"
           >
-            <ul />
-            <span>
-              0 items left
-            </span>
-            <fieldset>
-              <label>
-                All
-                <input
-                  name="filter_type"
-                  type="radio"
-                  value="ALL"
-                />
-              </label>
-              <label>
-                Active
-                <input
-                  name="filter_type"
-                  type="radio"
-                  value="ACTIVE"
-                />
-              </label>
-              <label>
-                Complete
-                <input
-                  name="filter_type"
-                  type="radio"
-                  value="COMPLETED"
-                />
-              </label>
-            </fieldset>
-            <button
-              class="clear-completed"
-            >
-              Clear Completed (0)
-            </button>
+            <input
+              class="todo-item-input"
+              placeholder="What needs to be done?"
+              type="text"
+            />
+            <ul
+              class="todo-item-list"
+            />
+            <div>
+              <span>
+                0 items left
+              </span>
+              <fieldset>
+                <label>
+                  All
+                  <input
+                    name="filter_type"
+                    type="radio"
+                    value="ALL"
+                  />
+                </label>
+                <label>
+                  Active
+                  <input
+                    name="filter_type"
+                    type="radio"
+                    value="ACTIVE"
+                  />
+                </label>
+                <label>
+                  Complete
+                  <input
+                    name="filter_type"
+                    type="radio"
+                    value="COMPLETED"
+                  />
+                </label>
+              </fieldset>
+              <button
+                class="clear-completed"
+              >
+                Clear Completed (0)
+              </button>
+            </div>
           </section>
         </article>
       </div>
