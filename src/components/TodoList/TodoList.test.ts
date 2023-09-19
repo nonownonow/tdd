@@ -66,7 +66,9 @@ describe("TodoList", () => {
                 </button>
               </li>
             </ul>
-            <div>
+            <div
+              class="todo-info"
+            >
               <span>
                 1 items left
               </span>

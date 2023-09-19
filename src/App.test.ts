@@ -33,7 +33,9 @@ describe("랜더링", () => {
             <ul
               class="todo-item-list"
             />
-            <div>
+            <div
+              class="todo-info"
+            >
               <span>
                 0 items left
               </span>

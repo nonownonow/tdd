@@ -23,26 +23,6 @@ export default class TodoList {
     this.rootElement = document.createElement("section");
     this.rootElement.classList.add("todo-list");
     this.todos = [];
-    /*this.todos = [
-      {
-        id: "id29a58ad6-f893-4a8e-9892-b70e792aefe8",
-        content: "asdfasdsfasdf",
-        completed: false,
-        order: 3,
-      },
-      {
-        id: "id82daba94-f6cc-491a-a5a7-6f1c555dc638",
-        content: "sddd",
-        completed: false,
-        order: 2,
-      },
-      {
-        id: "id3d30ba52-1c9c-4ad4-8289-c6443852288d",
-        content: "asdfasdfa",
-        completed: false,
-        order: 1,
-      },
-    ];*/
     this.currentFilter = "ALL";
   }
   addTodo(todo: string) {
@@ -195,7 +175,6 @@ export default class TodoList {
     this.mirror.style.position = "absolute";
     this.mirror.style.opacity = "0.5";
     this.mirror.style.pointerEvents = "none";
-    this.mirror.style.width = "100%";
     const rect = todoElement.getBoundingClientRect();
 
     this.offsetX = event.clientX - rect.left;
@@ -216,24 +195,17 @@ export default class TodoList {
     }, 2000) as unknown as number;
   };
   private showPreview = (event: MouseEvent) => {
-    // 현재 드래그 중인 아이템의 엘리먼트를 찾습니다.
     const currentItemElement = this.rootElement.querySelector(
       `li:has(input[id="${this.todos[this.clickItemIndex]?.id}"])`
     ) as HTMLLabelElement;
 
     if (currentItemElement) {
-      // 현재 아이템의 복제본을 생성합니다.
       this.previewElement = currentItemElement.cloneNode(true) as HTMLElement;
 
-      // 복제본에 스타일을 적용합니다.
       this.previewElement.style.opacity = "0.7";
       this.previewElement.style.position = "relative";
       this.previewElement.style.color = "red";
 
-      // 원래 아이템을 삭제합니다.
-      // currentItemElement.remove();
-
-      // 드롭 대상을 찾습니다.
       const dropTarget = document.elementFromPoint(
         event.clientX,
         event.clientY
@@ -347,6 +319,7 @@ export default class TodoList {
     inputElement.focus();
     this.rootElement.appendChild(this.createItemList());
     const todoInfo = document.createElement("div");
+    todoInfo.className = "todo-info";
     todoInfo.appendChild(this.createCountDisplay());
     todoInfo.appendChild(this.createFilterRadioFieldset());
     todoInfo.appendChild(this.createClearCompletedButton());
