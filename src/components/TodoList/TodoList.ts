@@ -299,9 +299,27 @@ export default class TodoList {
     });
     return this.filterTodo(sortedTodos);
   };
+  private createInput() {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "What needs to be done?";
+    input.addEventListener("keyup", (event: KeyboardEvent) => {
+      if (event.key === "Enter") {
+        const input = event.currentTarget as HTMLInputElement;
+        const value = input.value;
+        if (value) {
+          this.addTodo(value);
+        }
+        input.value = "";
+      }
+    });
+    return input;
+  }
+
   render() {
     this.filteredTodos = this.getFilteredTodos();
     this.rootElement.innerHTML = "";
+    this.rootElement.appendChild(this.createInput());
     this.rootElement.appendChild(this.createItemList());
     this.rootElement.appendChild(this.createCountDisplay());
     this.rootElement.appendChild(this.createFilterRadioFieldset());
@@ -310,9 +328,6 @@ export default class TodoList {
     document.addEventListener("mousemove", this.handleMousemove);
     document.addEventListener("keyup", this.handleKeyup);
     document.addEventListener("mouseup", this.handleMouseup);
-    /*
-    ;
-    */
     return this.rootElement;
   }
 }
