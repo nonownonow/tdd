@@ -8,8 +8,8 @@
     "build": "webpack",
     "start": "webpack serve --open",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
-    "postbuild": "cp build/index.html build/404.html"
+    "deploy": "gh-pages -d dist",
+    "postbuild": "cp dist/index.html dist/404.html"
   },
   "keywords": [],
   "author": "",
